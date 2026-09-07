@@ -2,7 +2,7 @@
 
 ## Mission
 
-Build an autonomous systematic investment platform that can research markets, discover strategies, validate them, construct portfolios, enforce hard risk policy, execute orders, maintain a complete audit trail, and continuously evaluate whether strategies deserve capital.
+Build an autonomous systematic investment platform that can scan markets by regime, discover strategies, validate them, construct portfolios, enforce hard risk policy, execute orders, maintain a complete audit trail, and continuously evaluate whether strategies deserve capital.
 
 ## Non-negotiable architecture
 
@@ -25,8 +25,10 @@ Build an autonomous systematic investment platform that can research markets, di
 - Baseline moving-average momentum strategy.
 - Dependency-light backtest harness.
 - Research candidate evaluation pipeline.
+- **Regime-aware market screener engine with bull, bear, range, volatility, crisis, and recovery regimes.**
+- **Built-in trend, breakout, mean-reversion, volatility-compression, relative-strength, oversold-bounce, and panic-defense screeners.**
 - Initial CIO and Risk Officer agent boundaries.
-- Unit tests for risk, paper execution, and audit logging.
+- Unit tests for risk, paper execution, audit logging, and regime screeners.
 - CLI for health, backtest, research, paper-run, and agents.
 
 ### Phase 1 — Data platform
@@ -39,10 +41,18 @@ Build an autonomous systematic investment platform that can research markets, di
 - DuckDB/Parquet lake plus optional PostgreSQL/Timescale operational store.
 - Feature store with point-in-time correctness.
 
-### Phase 2 — Research lab
+### Phase 2 — Regime-aware screening and research lab
 
+- Universe builders for crypto, equities, ETFs, derivatives, and cross-venue instruments.
+- Multi-timeframe regime classification.
+- Steady-state and transition-regime detection.
+- Cross-sectional ranking inside each regime.
+- Trend, momentum, breakout, mean-reversion, relative-strength, volatility, volume/liquidity, breadth, factor, carry, basis, funding, open-interest, event, arbitrage, and defensive screeners.
+- Crypto-specific screeners: funding dislocation, basis, open-interest acceleration, liquidation pressure, exchange dispersion, stablecoin flows, and market breadth.
+- Equity-specific screeners: earnings/catalysts, relative strength, valuation/factor residuals, volume expansion, short-interest/borrow constraints, and sector leadership.
+- Liquidity-aware and transaction-cost-aware candidate ranking.
+- Regime-specific screener ensembles with configurable weights.
 - Strategy registry and immutable strategy versions.
-- Momentum, mean reversion, breakout, trend, carry, pairs/stat-arb, volatility, and cross-sectional factors.
 - Cost-aware backtesting with realistic fills.
 - Walk-forward optimization.
 - Bootstrap/Monte-Carlo robustness.
@@ -59,6 +69,7 @@ Build an autonomous systematic investment platform that can research markets, di
 - Model registry with dataset/feature/model hashes.
 - Drift detection and retraining policy.
 - Champion/challenger benchmarking.
+- ML regime classifier benchmarked against the deterministic baseline.
 
 ### Phase 4 — Portfolio construction
 
@@ -69,6 +80,7 @@ Build an autonomous systematic investment platform that can research markets, di
 - Risk parity / HRP / minimum variance / max-Sharpe variants.
 - CVaR and drawdown constraints.
 - Liquidity-aware sizing.
+- Regime-dependent strategy allocation and exposure caps.
 
 ### Phase 5 — Multi-agent investment process
 
@@ -112,6 +124,30 @@ Build an autonomous systematic investment platform that can research markets, di
 - Model/strategy retirement process.
 - Compliance evidence export.
 
+## Regime screener design
+
+The screener layer is a first-class candidate-generation system. Screeners are selected based on the detected regime rather than applying one universal filter to every asset.
+
+```text
+Market universe
+      ↓
+Data quality / liquidity gates
+      ↓
+Multi-timeframe features
+      ↓
+Regime classification
+      ↓
+Regime-compatible screener ensemble
+      ↓
+Cross-sectional ranking
+      ↓
+Candidate eligibility
+      ↓
+Research / backtest / strategy discovery
+```
+
+A screener must never imply a trade by itself. It produces a scored, explainable candidate with regime and supporting signals. Candidates then enter the research lifecycle and must survive validation before capital allocation.
+
 ## Strategy lifecycle
 
 `IDEA → SPEC → BACKTEST → WALK_FORWARD → STRESS → PAPER → SHADOW → SMALL_LIVE → PRODUCTION → REVIEW → RETIRED`
@@ -122,16 +158,16 @@ Every promotion requires a reproducible artifact bundle and a recorded decision.
 
 ### Daily
 
-Data health → overnight event scan → research refresh → factor/regime update → portfolio rebalance proposal → risk review → execution window → reconciliation → P&L attribution → report.
+Data health → universe refresh → regime classification → regime-specific screening → event/news scan → research refresh → factor/model update → portfolio rebalance proposal → risk review → execution window → reconciliation → P&L attribution → report.
 
 ### Weekly
 
-Strategy leaderboard → correlation/overlap analysis → robustness refresh → champion/challenger review → capital reallocation proposal → infrastructure/cost review.
+Screener leaderboard → strategy leaderboard → regime-conditioned hit rates → correlation/overlap analysis → robustness refresh → champion/challenger review → capital reallocation proposal → infrastructure/cost review.
 
 ### Monthly
 
-Full portfolio review → strategy retirement/addition decisions → model drift review → counterparty review → treasury review → governance/compliance package.
+Full portfolio review → regime transition review → screener effectiveness review → strategy retirement/addition decisions → model drift review → counterparty review → treasury review → governance/compliance package.
 
 ## Success criteria
 
-The platform is ready for a controlled small-live pilot when it has deterministic risk enforcement, reproducible research, realistic cost modeling, point-in-time data, complete reconciliation, audited order lineage, functioning kill controls, and a documented approval process. Performance alone is not a release criterion.
+The platform is ready for a controlled small-live pilot when it has deterministic risk enforcement, reproducible research, realistic cost modeling, point-in-time data, complete reconciliation, audited order lineage, functioning kill controls, regime-aware screening across the supported universe, and a documented approval process. Performance alone is not a release criterion.
