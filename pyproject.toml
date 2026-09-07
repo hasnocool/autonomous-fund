@@ -1,0 +1,60 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "autonomous-fund"
+version = "0.1.0"
+description = "Autonomous systematic trading research, portfolio, risk, execution, and governance platform."
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "pydantic>=2.10,<3",
+  "pydantic-settings>=2.7,<3",
+  "typer>=0.15,<1",
+  "tomli-w>=1.2,<2",
+]
+
+[project.optional-dependencies]
+research = [
+  "numpy>=2.1,<3",
+  "pandas>=2.2,<3",
+  "polars>=1.20,<2",
+  "scikit-learn>=1.6,<2",
+  "scipy>=1.15,<2",
+]
+market = [
+  "ccxt>=4.4,<5",
+  "yfinance>=0.2.50,<1",
+]
+dev = [
+  "pytest>=8.3,<9",
+  "pytest-cov>=6,<7",
+  "ruff>=0.9,<1",
+  "mypy>=1.14,<2",
+]
+all = [
+  "autonomous-fund[research,market,dev]",
+]
+
+[project.scripts]
+autonomous-fund = "autonomous_fund.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/autonomous_fund"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
