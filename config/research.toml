@@ -1,0 +1,31 @@
+[fund]
+name = "Autonomous Fund Research"
+base_currency = "USD"
+mode = "research"
+starting_cash = 100000.0
+
+[risk]
+max_gross_exposure = 1.0
+max_net_exposure = 1.0
+max_position_weight = 0.10
+max_strategy_weight = 0.35
+max_daily_loss = 0.02
+max_drawdown = 0.10
+max_order_notional = 10000.0
+min_cash_buffer = 0.10
+
+[execution]
+venue = "paper"
+slippage_bps = 0.0
+fee_bps = 0.0
+
+[research]
+train_ratio = 0.60
+validation_ratio = 0.20
+test_ratio = 0.20
+walk_forward_splits = 5
+min_trades = 10
+
+[data]
+timeframe = "1h"
+lookback_bars = 5000
